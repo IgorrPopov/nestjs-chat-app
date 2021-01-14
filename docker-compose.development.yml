@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  server:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    command: npm run start:dev
+
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    command: npm run start
+
+  nginx:
+    volumes:
+      - ./nginx/nginx.conf.dev:/etc/nginx/conf.d/nginx.conf

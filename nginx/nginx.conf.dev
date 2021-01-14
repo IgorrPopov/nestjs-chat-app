@@ -1,0 +1,21 @@
+server {
+  listen 80;
+
+  server_name chat-app.local;
+
+  location / {
+    proxy_pass http://client:3000;
+    # Needed for sockets
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+  }
+
+  location /chat {
+    proxy_pass http://server:3001;
+    # Needed for sockets
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+  }
+}

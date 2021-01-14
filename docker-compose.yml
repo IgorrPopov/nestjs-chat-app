@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  client:
+    build:
+      dockerfile: Dockerfile.prod
+      context: ./client
+    container_name: chat-app-client
+    command: npm run build
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    networks:
+      - chat-app-network
+    volumes:
+      - ./client/src:/usr/src/app/src
+
+  server:
+    build:
+      dockerfile: Dockerfile.prod
+      context: ./server
+    container_name: chat-app-server
+    command: npm run start:prod
+    restart: unless-stopped
+    environment:
+      - PORT=3001
+    ports:
+      - 3001:3001
+    networks:
+      - chat-app-network
+    volumes:
+      - ./server/src:/usr/src/app/src
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: chat-app-nginx
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf
+    depends_on:
+      - server
+    networks:
+      - chat-app-network
+
+networks:
+  chat-app-network:
+    driver: bridge
