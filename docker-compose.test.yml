@@ -1,9 +1,9 @@
-# version: '3'
+version: '3'
 
-# services:
-#   api:
-#     build:
-#       dockerfile: Dockerfile.dev
-#       context: ./api
-#     container_name: book-api
-#     command: npm run test
+services:
+  server:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    container_name: chat-app-server
+    command: npm run test
