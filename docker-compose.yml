@@ -8,6 +8,8 @@ services:
     container_name: chat-app-client
     command: npm run build
     restart: unless-stopped
+    depends_on:
+      - server
     ports:
       - 3000:3000
     networks:
@@ -22,6 +24,8 @@ services:
     container_name: chat-app-server
     command: npm run start:prod
     restart: unless-stopped
+    depends_on:
+      - chat_db
     environment:
       - PORT=3001
     ports:
@@ -31,6 +35,14 @@ services:
     volumes:
       - ./server/src:/usr/src/app/src
 
+  chat_db:
+    image: mongo:latest
+    container_name: chat-app-db
+    volumes:
+      - mongo_db:/data/db
+    networks:
+      - chat-app-network
+
   nginx:
     image: nginx:stable-alpine
     container_name: chat-app-nginx
@@ -39,9 +51,12 @@ services:
     volumes:
       - ./nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf
     depends_on:
-      - server
+      - client
     networks:
       - chat-app-network
+
+volumes:
+  mongo_db:
 
 networks:
   chat-app-network:
