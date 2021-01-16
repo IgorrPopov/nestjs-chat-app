@@ -1,16 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+// import App from './App';
 
-import SignupPage from './components/SignupPage';
+// import SignupPage from './components/SignupPage';
+// import LoginPage from './components/LoginPage';
+import ChatPage from './components/ChatPage';
 
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
     {/* <App /> */}
-    <SignupPage />
+    <ChatPage />
   </React.StrictMode>,
   document.getElementById('root')
 );
