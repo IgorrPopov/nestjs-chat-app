@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import socket from '../servise/socket';
+// import socket from '../servise/socket';
 
 const ChatPage = props => {
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
-    console.log(socket);
+  // useEffect(() => {
+  //   console.log(socket);
 
-    socket.on('msgToClient', text => {
-      setMessages(prevMsg => {
-        return [...prevMsg, text];
-      });
-    });
-  }, []);
+  //   socket.on('msgToClient', text => {
+  //     setMessages(prevMsg => {
+  //       return [...prevMsg, text];
+  //     });
+  //   });
+  // }, []);
 
   const handleFormSubmit = e => {
     console.log('handleFormSubmit');
     e.preventDefault();
-    socket.emit('msgToServer', text);
+    // socket.emit('msgToServer', text);
     setText('');
   };
 
@@ -28,7 +28,7 @@ const ChatPage = props => {
   };
 
   return (
-    <div>
+    <div className='container'>
       <form onSubmit={handleFormSubmit}>
         <input type='text' value={text} onChange={handleTextInputChange} />
         <button className='btn'>Send</button>

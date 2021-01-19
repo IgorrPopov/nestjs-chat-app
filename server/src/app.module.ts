@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppGateway } from './app.gateway';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'src'),
-    }),
+    UsersModule,
+    MongooseModule.forRoot('mongodb://chat_db:27017/chat-app', {
+      autoIndex: true,
+    }), // makes email unique
   ],
   controllers: [],
   providers: [AppGateway],

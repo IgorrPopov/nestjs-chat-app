@@ -6,7 +6,7 @@
 #       dockerfile: Dockerfile.dev
 #       context: ./api
 #     container_name: book-api
-#     command: npm run test:e2e
+#     command: yarn test:e2e
 #     environment:
 #       - POSTGRES_PASSWORD=postgres
 #       - POSTGRES_USER=postgres

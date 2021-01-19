@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.prod
       context: ./client
     container_name: chat-app-client
-    command: npm run build
+    command: yarn build
     restart: unless-stopped
     depends_on:
       - server
@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile.prod
       context: ./server
     container_name: chat-app-server
-    command: npm run start:prod
+    command: yarn start:prod
     restart: unless-stopped
     depends_on:
       - chat_db
@@ -38,6 +38,11 @@ services:
   chat_db:
     image: mongo:latest
     container_name: chat-app-db
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    environment:
+      MONGODB_DATABASE: chat-app
     volumes:
       - mongo_db:/data/db
     networks:

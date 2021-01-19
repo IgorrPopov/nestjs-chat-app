@@ -6,4 +6,4 @@ services:
       dockerfile: Dockerfile.dev
       context: ./server
     container_name: chat-app-server
-    command: npm run test
+    command: yarn test

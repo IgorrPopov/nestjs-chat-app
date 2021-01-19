@@ -2,17 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 // import App from './App';
-
-// import SignupPage from './components/SignupPage';
-// import LoginPage from './components/LoginPage';
-import ChatPage from './components/ChatPage';
-
 import reportWebVitals from './reportWebVitals';
+
+import AppRouter from './components/router/AppRouter';
+import 'materialize-css/dist/css/materialize.min.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <App /> */}
-    <ChatPage />
+    <AppRouter />
   </React.StrictMode>,
   document.getElementById('root')
 );
