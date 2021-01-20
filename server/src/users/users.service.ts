@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -35,7 +36,13 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const user = new this.userModel(createUserDto);
+      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+      const user = new this.userModel({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+
       return await user.save();
     } catch (error) {
       throw new BadRequestException(error);
@@ -66,5 +73,13 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    const user = await this.userModel.findOne({ email }).exec();
+
+    if (user) {
+      return user;
+    }
   }
 }
