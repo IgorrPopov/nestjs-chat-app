@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 @Schema()
 export class Message extends Document {
@@ -15,12 +15,13 @@ export class Message extends Document {
     required: true,
   })
   owner: string;
-
-  @Prop({ required: true, default: Date.now })
-  createdAt: Date;
-
-  @Prop({ required: true, default: Date.now })
-  updatedAt: Date;
 }
 
-export const MessageSchema = SchemaFactory.createForClass(Message);
+const MessageSchema = SchemaFactory.createForClass(Message);
+
+MessageSchema.set('timestamps', true);
+MessageSchema.add({
+  owner: { type: MongooseSchema.Types.ObjectId, required: true, ref: 'User' },
+});
+
+export { MessageSchema };

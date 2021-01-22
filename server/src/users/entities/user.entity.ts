@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 import {
   MAX_PASSWORD_LENGTH,
@@ -35,4 +35,18 @@ export class User extends Document {
   password: string;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.virtual('messages', {
+  ref: 'Message',
+  localField: '_id',
+  foreignField: 'owner',
+});
+
+UserSchema.set('toJSON', { virtuals: true });
+
+// UserSchema.add({
+//   messages: [{ type: MongooseSchema.Types.ObjectId, ref: 'Message' }],
+// });
+
+export { UserSchema };

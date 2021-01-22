@@ -2,40 +2,85 @@ import { UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UsersService } from 'src/users/users.service';
 import { ChatService } from './chat.service';
 
 @WebSocketGateway()
-export class ChatGateway {
-  constructor(private readonly chatService: ChatService) {}
-
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
-  // @SubscribeMessage('message')
-  // handleMessage(client: any, payload: any): string {
-  //   return 'Hello world!';
-  // }
 
-  // @UseGuards(JwtAuthGuard)
+  private connectedChatUsers: any[] = [];
+
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly usersService: UsersService,
+  ) {
+    // this.connectedChatUsers = [];
+  }
+
+  async handleConnection(client: Socket, ...args: any[]) {
+    console.log('--------------- New connection: ', client.id, '-------------');
+
+    const client_id = client.handshake.query._id;
+
+    if (client_id) {
+      // console.log({ client_id });
+
+      const user = await this.usersService.findOne(client_id);
+
+      // console.log(this.connectedChatUsers);
+
+      this.connectedChatUsers.push({
+        ...user.toObject(),
+        socket_id: client.id,
+      });
+
+      client.broadcast.emit('loadUsers', { users: this.connectedChatUsers });
+    }
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log('----------- Client: ', client.id, ' disconnected ---');
+
+    if (this.connectedChatUsers.length > 0 && client.id) {
+      this.connectedChatUsers = this.connectedChatUsers.filter(
+        (user) => user.socket_id !== client.id,
+      );
+
+      client.broadcast.emit('loadUsers', { users: this.connectedChatUsers });
+    }
+  }
+
+  @SubscribeMessage('loadUsers')
+  loadUsers(@ConnectedSocket() client: Socket) {
+    return { event: 'loadUsers', data: { users: this.connectedChatUsers } };
+  }
+
+  @SubscribeMessage('loadMessages')
+  async loadMessages() {
+    const messages = await this.chatService.getAllMessages();
+    return { messages };
+  }
+
   @SubscribeMessage('events')
   async handleEvent(
-    @MessageBody() data: unknown,
+    @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ): Promise<WsResponse<unknown>> {
-    // this.server.emit('events', data);
-    // client.broadcast({ event: 'events', data });
+    const { text, owner } = data;
 
-    const message = await this.chatService.createMessage(data, 'ididididididi');
+    const message = await this.chatService.createMessage(text, owner);
 
-    console.log({ message });
-
-    client.broadcast.emit('events', data);
-
-    return { event: 'events', data };
+    client.broadcast.emit('events', { message });
+    return { event: 'events', data: { message } };
   }
 }
