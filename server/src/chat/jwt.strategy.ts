@@ -7,7 +7,7 @@ import { JWT_SECRET } from '../config/config';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromUrlQueryParameter('jwt_token'),
       ignoreExpiration: false,
       secretOrKey: JWT_SECRET,
     });
@@ -17,7 +17,5 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // console.log({ payload });
 
     return { _id: payload.sub, name: payload.username };
-    // return { _id: payload.sub, name: payload.name };
-    // const payload = { username: user.name, sub: user._id };
   }
 }

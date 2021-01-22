@@ -31,8 +31,6 @@ export class AppGateway
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.log(`Client connected: ${client.id}`);
-    // console.log(client);
-
     return { event: 'msgToClient', data: 'hello' };
   }
 }

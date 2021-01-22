@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const LoginPage = props => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // console.log(props?.location?.state?.user?.email);
+  const [email, setEmail] = useState(
+    props?.location?.state?.user?.email || 'her@gmail.com'
+  );
+  const [password, setPassword] = useState('1111111');
+
+  useEffect(() => {
+    document.getElementById('email').focus();
+  }, []);
 
   const handleEmailChange = e => setEmail(e.target.value);
   const handlePasswordChange = e => setPassword(e.target.value);
@@ -23,10 +30,10 @@ const LoginPage = props => {
 
     if (response.status === 201) {
       const user = await response.json();
-      // props.history.push({
-      //   pathname: '/chat',
-      //   state: { user },
-      // });
+      props.history.push({
+        pathname: '/chat',
+        state: { user },
+      });
 
       console.log({ user });
     } else {

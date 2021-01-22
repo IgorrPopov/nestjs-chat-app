@@ -34,7 +34,7 @@ export class UsersService {
     return user;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<any> {
     try {
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
@@ -43,7 +43,9 @@ export class UsersService {
         password: hashedPassword,
       });
 
-      return await user.save();
+      const { _id, name, email } = await user.save();
+
+      return { _id, name, email };
     } catch (error) {
       throw new BadRequestException(error);
     }
