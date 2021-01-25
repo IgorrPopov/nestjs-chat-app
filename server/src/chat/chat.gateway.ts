@@ -23,21 +23,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly chatService: ChatService,
     private readonly usersService: UsersService,
-  ) {
-    // this.connectedChatUsers = [];
-  }
+  ) {}
 
   async handleConnection(client: Socket, ...args: any[]) {
-    console.log('--------------- New connection: ', client.id, '-------------');
+    console.log('New connection: ', client.id);
 
     const client_id = client.handshake.query._id;
 
     if (client_id) {
-      // console.log({ client_id });
-
       const user = await this.usersService.findOne(client_id);
-
-      // console.log(this.connectedChatUsers);
 
       this.connectedChatUsers.push({
         ...user.toObject(),
@@ -49,7 +43,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    console.log('----------- Client: ', client.id, ' disconnected ---');
+    console.log('Client: ', client.id, ' disconnected');
 
     if (this.connectedChatUsers.length > 0 && client.id) {
       this.connectedChatUsers = this.connectedChatUsers.filter(

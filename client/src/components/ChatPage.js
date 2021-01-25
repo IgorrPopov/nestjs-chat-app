@@ -1,11 +1,14 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import M from 'materialize-css/dist/js/materialize.min.js';
 import { v4 as uuidV4 } from 'uuid';
 import socketConnection from '../servise/socket';
+import { StateContext } from './context/StateContext';
 import Message from './Message';
 import User from './User';
 
 const ChatPage = props => {
+  const { state, setState } = useContext(StateContext);
+
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
   const [user] = useState(props?.location?.state?.user || null);
@@ -89,15 +92,11 @@ const ChatPage = props => {
   };
 
   const makeVideoCall = () => {
-    const video_chat_room_id = uuidV4();
-    const state = { user, userToCall, video_chat_room_id, socket };
+    const room_id = uuidV4();
 
-    console.log({ state });
+    setState({ user, userToCall, room_id, socket });
 
-    props.history.push({
-      pathname: '/video-chat',
-      state,
-    });
+    props.history.push(`/video-chat/${room_id}`);
   };
 
   return (

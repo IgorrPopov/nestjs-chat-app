@@ -63,7 +63,7 @@ services:
   peer_server:
     image: peerjs/peerjs-server
     container_name: chat-app-peer-server
-    command: peerjs --port 9000 --key peerjs --path /peer
+    command: peerjs --port 9000
     restart: unless-stopped
     ports:
       - 9000:9000

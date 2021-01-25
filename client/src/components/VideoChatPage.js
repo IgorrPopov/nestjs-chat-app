@@ -1,18 +1,32 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import Peer from 'peerjs';
+import { StateContext } from './context/StateContext';
 
 const VideoChatPage = props => {
-  console.log({ props });
-  const [user] = useState(props?.location?.state?.user || null);
-  const [userToCall] = useState(props?.location?.state?.userToCall || null);
-  const [video_chat_room_id] = useState(
-    props?.location?.state?.video_chat_room_id || null
+  const { state } = useContext(StateContext);
+  const [myPeer] = useState(
+    new Peer(undefined, {
+      host: '/',
+      port: '9000',
+    })
   );
-  const [socket] = useState(props?.location?.state?.socket || null);
 
-  //   console.log({ user });
-  //   console.log({ userToCall });
-  //   console.log({ video_chat_room_id });
-  //   console.log({ socket });
+  useEffect(() => {
+    if (state && myPeer) {
+      myPeer.on('open', peer_id => {
+        const socket = state.socket;
+
+        socket.emit('join-video-chat-room', {
+          room_id: state.room_id,
+          user: { _id: state.user._id, socket_id: state.user.socket_id },
+          partner: {
+            _id: state.userToCall._id,
+            socket_id: state.userToCall.socket_id,
+          },
+        });
+      });
+    }
+  }, [state, myPeer]);
 
   return (
     <div className='container'>
