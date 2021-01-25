@@ -1,5 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import socketInit from '../servise/socket';
+import M from 'materialize-css/dist/js/materialize.min.js';
+import { v4 as uuidV4 } from 'uuid';
+import socketConnection from '../servise/socket';
 import Message from './Message';
 import User from './User';
 
@@ -8,14 +10,14 @@ const ChatPage = props => {
   const [messages, setMessages] = useState([]);
   const [user] = useState(props?.location?.state?.user || null);
   const [users, setUsers] = useState([]);
+  const [userToCall, setUserToCall] = useState(null);
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     if (!user) {
       props.history.push('/login');
     } else {
-      console.log({ user });
-      setSocket(socketInit(user._id));
+      setSocket(socketConnection.getConnection(user._id));
     }
   }, []);
 
@@ -45,14 +47,29 @@ const ChatPage = props => {
       socket.emit('loadUsers');
 
       socket.on('loadUsers', data => {
-        data.users = data.users.filter(item => item._id !== user._id);
-        setUsers([...data.users]);
+        const uniqueOtherUsers = data.users.reduce((accum, curr) => {
+          if (
+            curr._id !== user._id &&
+            !accum.find(user => user._id === curr._id)
+          ) {
+            accum.push(curr);
+          }
+
+          return accum;
+        }, []);
+
+        setUsers([...uniqueOtherUsers]);
       });
     }
   }, [socket]);
 
+  useEffect(() => {
+    // modal
+    const elems = document.querySelectorAll('.modal');
+    const instances = M.Modal.init(elems, {});
+  }, []);
+
   const handleFormSubmit = e => {
-    console.log('handleFormSubmit');
     e.preventDefault();
 
     if (socket) {
@@ -68,7 +85,19 @@ const ChatPage = props => {
   };
 
   const handleClickOnUser = user => {
-    console.log({ user });
+    setUserToCall(user);
+  };
+
+  const makeVideoCall = () => {
+    const video_chat_room_id = uuidV4();
+    const state = { user, userToCall, video_chat_room_id, socket };
+
+    console.log({ state });
+
+    props.history.push({
+      pathname: '/video-chat',
+      state,
+    });
   };
 
   return (
@@ -77,12 +106,24 @@ const ChatPage = props => {
         <div className='chat-box'>
           <div className='chat-box__messages'>
             {messages.map(message => {
-              return <Message _id={user._id} message={message} />;
+              return (
+                <Message
+                  user_id={user._id}
+                  message={message}
+                  key={message._id}
+                />
+              );
             })}
           </div>
           <div className='chat-box__users'>
             {users.map(user => {
-              return <User user={user} handleClickOnUser={handleClickOnUser} />;
+              return (
+                <User
+                  user={user}
+                  handleClickOnUser={handleClickOnUser}
+                  key={user._id}
+                />
+              );
             })}
           </div>
         </div>
@@ -97,6 +138,27 @@ const ChatPage = props => {
               Send
             </button>
           </form>
+        </div>
+      </div>
+
+      {/* modal */}
+      <div className='modal' id='video_call'>
+        <div className='modal-content'>
+          <h4>
+            Do you want to make a video call to <b>{userToCall?.name}</b>
+          </h4>
+          <div className='modal-footer'>
+            <a
+              href='#'
+              onClick={makeVideoCall}
+              className='modal-close btn green'
+            >
+              Yes
+            </a>{' '}
+            <a href='#' className='modal-close btn red'>
+              No
+            </a>
+          </div>
         </div>
       </div>
     </div>

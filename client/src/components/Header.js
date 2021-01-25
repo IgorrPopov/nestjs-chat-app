@@ -4,6 +4,7 @@ import M from 'materialize-css/dist/js/materialize.min.js';
 
 const Header = props => {
   useEffect(() => {
+    // sidebar
     const sidenav = document.querySelector('#slide-out');
     M.Sidenav.init(sidenav, {});
   }, []);

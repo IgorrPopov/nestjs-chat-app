@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Message = ({ _id, message }) => {
+const Message = ({ user_id, message }) => {
   const classNameForMessage =
-    _id !== message.owner._id ? 'message' : 'message message--right';
+    user_id !== message.owner._id ? 'message' : 'message message--right';
 
   const time = message.createdAt
-    .split(/[T|\.]/g)
+    .split(/[T|.]/g)
     .map((elm, index) => {
       if (index === 0) return elm.replaceAll('-', '.');
       if (index === 1) return elm;

@@ -61,14 +61,23 @@ code {
   padding: 5px 15px;
   width: 70%;
   max-width: 500px;
-  background-color: #4db6ac;
+  /* background-color: #4db6ac; */
+  background-image: linear-gradient(to left bottom, #39b87c, #4db6ac);
   border-radius: 20px;
   margin-top: 10px;
   border-bottom-left-radius: 0;
+  transition: all 0.2s;
+}
+
+.message:hover {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.671);
+  /* transform: translateY(-2px) rotate(0.02deg);
+  backface-visibility: hidden; */
 }
 
 .message--right {
-  background-color: #39b87c;
+  /* background-color: #39b87c; */
+  background-image: linear-gradient(to left bottom, #4db6ac, #397bb8);
   margin-left: auto;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 0;
@@ -90,11 +99,17 @@ code {
 .user {
   background-color: #4db6ac5d;
   padding: 10px 15px;
-  border-bottom: 1px solid #4db6ac;
+  background-image: linear-gradient(to left bottom, #4db6ac85, #397bb880);
+  /* border-bottom: 1px solid #4db6ac; */
   font-weight: bold;
-  /* font- */
+  cursor: pointer;
 }
 
 .user:hover {
-  background-color: #4db6acd0;
+  background-image: linear-gradient(to left bottom, #4db6ac, #397bb8);
+  /* background-color: #4db6acd0; */
+}
+
+.modal-close {
+  margin-left: 20xp;
 }

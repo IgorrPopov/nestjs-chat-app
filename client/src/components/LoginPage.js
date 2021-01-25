@@ -35,7 +35,7 @@ const LoginPage = props => {
         state: { user },
       });
 
-      console.log({ user });
+      // console.log({ user });
     } else {
       const responseMsg = await response.json();
       console.log(responseMsg);
