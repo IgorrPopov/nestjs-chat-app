@@ -29,7 +29,7 @@ const Header = props => {
           </ul>
         </div>
       </nav>
-      <ul id='slide-out' className='sidenav'>
+      <ul id='slide-out' className='sidenav sidenav-close'>
         <li>
           <Link to='/chat'>Chat</Link>
         </li>

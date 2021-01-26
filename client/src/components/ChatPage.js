@@ -14,6 +14,7 @@ const ChatPage = props => {
   const [user] = useState(props?.location?.state?.user || null);
   const [users, setUsers] = useState([]);
   const [userToCall, setUserToCall] = useState(null);
+  const [userWhoIsCalling, setUserWhoIsCalling] = useState(null);
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
@@ -46,7 +47,7 @@ const ChatPage = props => {
         setMessages([...messages, ...data.messages]);
       });
 
-      // load load connected users
+      // load connected users
       socket.emit('loadUsers');
 
       socket.on('loadUsers', data => {
@@ -63,14 +64,26 @@ const ChatPage = props => {
 
         setUsers([...uniqueOtherUsers]);
       });
+
+      socket.on('video-chat-invitation', ({ room_id, user: partner }) => {
+        partner.room_id = room_id;
+        setUserWhoIsCalling(partner);
+      });
     }
   }, [socket]);
 
   useEffect(() => {
-    // modal
-    const elems = document.querySelectorAll('.modal');
+    const elems = document.querySelectorAll('#video_call');
     const instances = M.Modal.init(elems, {});
   }, []);
+
+  useEffect(() => {
+    if (userWhoIsCalling) {
+      const elems = document.querySelector('#video_call_answer');
+      const instance = M.Modal.init(elems, {});
+      instance.open();
+    }
+  }, [userWhoIsCalling]);
 
   const handleFormSubmit = e => {
     e.preventDefault();
@@ -97,6 +110,16 @@ const ChatPage = props => {
     setState({ user, userToCall, room_id, socket });
 
     props.history.push(`/video-chat/${room_id}`);
+  };
+
+  const answerVideoCall = () => {
+    if (userWhoIsCalling) {
+      const { room_id, partner } = userWhoIsCalling;
+
+      setState({ user, partner, room_id, socket });
+
+      props.history.push(`/video-chat/${room_id}`);
+    }
   };
 
   return (
@@ -140,7 +163,7 @@ const ChatPage = props => {
         </div>
       </div>
 
-      {/* modal */}
+      {/* make a video call modal */}
       <div className='modal' id='video_call'>
         <div className='modal-content'>
           <h4>
@@ -156,6 +179,28 @@ const ChatPage = props => {
             </a>{' '}
             <a href='#' className='modal-close btn red'>
               No
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* answer to video call modal */}
+      <div className='modal' id='video_call_answer'>
+        <div className='modal-content'>
+          <h4>
+            User <b>{userWhoIsCalling && userWhoIsCalling.name}</b> is calling
+            you via video call
+          </h4>
+          <div className='modal-footer'>
+            <a
+              href='#'
+              onClick={answerVideoCall}
+              className='modal-close btn green'
+            >
+              Answer
+            </a>{' '}
+            <a href='#' className='modal-close btn red'>
+              Reject
             </a>
           </div>
         </div>

@@ -77,4 +77,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.broadcast.emit('events', { message });
     return { event: 'events', data: { message } };
   }
+
+  @SubscribeMessage('join-video-chat-room')
+  handleUserJoinVideoChat(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    const { room_id, user, partner } = data;
+
+    this.server
+      .to(partner.socket_id)
+      .emit('video-chat-invitation', { room_id, user });
+
+    client.join(room_id);
+  }
 }
