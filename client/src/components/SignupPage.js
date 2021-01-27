@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SOCKET_URL, API_HOST } from '../config/config';
 
 const SignupPage = props => {
   const [name, setName] = useState('');
@@ -12,7 +13,7 @@ const SignupPage = props => {
   const handleFormSubmit = async e => {
     e.preventDefault();
 
-    const response = await fetch('/users', {
+    const response = await fetch(`${API_HOST}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

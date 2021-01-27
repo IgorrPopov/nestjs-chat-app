@@ -12,6 +12,9 @@ services:
       - server
     ports:
       - 3000:3000
+    # environment:
+    # API_HOST: http://localhost:3001
+    # SOCKET_URL: http://localhost:3001
     networks:
       - chat-app-network
     volumes:
@@ -49,7 +52,7 @@ services:
       - chat-app-network
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:1.15-alpine
     container_name: chat-app-nginx
     ports:
       - '80:80'

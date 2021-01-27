@@ -1,7 +1,25 @@
 server {
   listen 80;
+  server_name chat-app.local; 
+  
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
 
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+
+
+server {
+  listen 443 ssl;
   server_name chat-app.local;
+
+  ssl_certificate /etc/letsencrypt/live/chat-app.local/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/chat-app.local/privkey.pem;
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
   location / {
     proxy_pass http://client:3000;

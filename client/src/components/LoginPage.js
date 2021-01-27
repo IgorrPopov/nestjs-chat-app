@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { SOCKET_URL, API_HOST } from '../config/config';
 
 const LoginPage = props => {
   // console.log(props?.location?.state?.user?.email);
@@ -17,7 +18,7 @@ const LoginPage = props => {
   const handleFormSubmit = async e => {
     e.preventDefault();
 
-    const response = await fetch('/auth/login', {
+    const response = await fetch(`${API_HOST}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
