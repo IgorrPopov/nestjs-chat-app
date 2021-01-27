@@ -13,7 +13,7 @@ const SignupPage = props => {
   const handleFormSubmit = async e => {
     e.preventDefault();
 
-    const response = await fetch(`${API_HOST}/users`, {
+    const response = await fetch(`/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

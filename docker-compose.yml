@@ -55,7 +55,7 @@ services:
     image: nginx:1.15-alpine
     container_name: chat-app-nginx
     ports:
-      - '80:80'
+      - '3002:3002'
     volumes:
       - ./nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf
     depends_on:

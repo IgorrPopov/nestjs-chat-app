@@ -18,7 +18,7 @@ const LoginPage = props => {
   const handleFormSubmit = async e => {
     e.preventDefault();
 
-    const response = await fetch(`${API_HOST}/auth/login`, {
+    const response = await fetch(`/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -7,7 +7,7 @@ import Message from './Message';
 import User from './User';
 
 const ChatPage = props => {
-  const { state, setState } = useContext(StateContext);
+  const { setState } = useContext(StateContext);
 
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
@@ -66,6 +66,7 @@ const ChatPage = props => {
       });
 
       socket.on('video-chat-invitation', ({ room_id, user: partner }) => {
+        console.log('video-chat-invitation');
         partner.room_id = room_id;
         setUserWhoIsCalling(partner);
       });
@@ -106,18 +107,14 @@ const ChatPage = props => {
 
   const makeVideoCall = () => {
     const room_id = uuidV4();
-
     setState({ user, userToCall, room_id, socket });
-
     props.history.push(`/video-chat/${room_id}`);
   };
 
   const answerVideoCall = () => {
     if (userWhoIsCalling) {
-      const { room_id, partner } = userWhoIsCalling;
-
-      setState({ user, partner, room_id, socket });
-
+      const { room_id, peer_id, _id } = userWhoIsCalling;
+      setState({ user, partner: { _id, peer_id }, room_id, socket });
       props.history.push(`/video-chat/${room_id}`);
     }
   };
@@ -171,7 +168,7 @@ const ChatPage = props => {
           </h4>
           <div className='modal-footer'>
             <a
-              href='#'
+              // href=''
               onClick={makeVideoCall}
               className='modal-close btn green'
             >
@@ -193,7 +190,7 @@ const ChatPage = props => {
           </h4>
           <div className='modal-footer'>
             <a
-              href='#'
+              // href='#'
               onClick={answerVideoCall}
               className='modal-close btn green'
             >

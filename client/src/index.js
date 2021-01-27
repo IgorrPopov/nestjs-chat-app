@@ -8,9 +8,9 @@ import AppRouter from './components/router/AppRouter';
 import 'materialize-css/dist/css/materialize.min.css';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <AppRouter />
-  </React.StrictMode>,
+  // <React.StrictMode>
+  <AppRouter />,
+  // </React.StrictMode>,
   document.getElementById('root')
 );
 
