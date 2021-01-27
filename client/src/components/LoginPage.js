@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { SOCKET_URL, API_HOST } from '../config/config';
 
 const LoginPage = props => {
-  // console.log(props?.location?.state?.user?.email);
   const [email, setEmail] = useState(
     props?.location?.state?.user?.email || 'her@gmail.com'
   );

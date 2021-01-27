@@ -12,10 +12,7 @@ const VideoChatPage = props => {
   );
 
   useEffect(() => {
-    if (!state || !myPeer) {
-      console.log('return if');
-      return;
-    }
+    if (!state || !myPeer) return;
 
     const socket = state.socket;
 
@@ -25,17 +22,16 @@ const VideoChatPage = props => {
         // add my video and audio to my page
         const myVideo = document.createElement('video');
         myVideo.muted = true;
-        console.log('addVideoStream: 28');
+        myVideo.classList.add('my-video');
+
         addVideoStream(myVideo, myStream);
 
         // this user wanna make a video call to the partner
         if (state.userToCall && !state.partner) {
-          console.log('if 32');
           myPeer.on('call', otherUserCall => {
             otherUserCall.answer(myStream);
             const otherUserVideo = document.createElement('video');
             otherUserCall.on('stream', otherUserStream => {
-              console.log('addVideoStream: 38');
               addVideoStream(otherUserVideo, otherUserStream);
             });
           });
@@ -44,26 +40,18 @@ const VideoChatPage = props => {
         // this user is answering the video call from a partner
         if (state.partner && !state.userToCall) {
           // connecting to the peer server
-          console.log({ myPeer });
-          // myPeer.on('open', peer_id => {
-          console.log('open 47');
           const call = myPeer.call(state.partner.peer_id, myStream);
-
+          const otherUserVideo = document.createElement('video');
+          otherUserVideo.classList.add('partner-video');
           call.on('stream', otherUserStream => {
-            console.log('new stream from other user');
-            const otherUserVideo = document.createElement('video');
-            console.log('addVideoStream: 55');
             addVideoStream(otherUserVideo, otherUserStream);
           });
-          // });
         }
       });
 
     // open connection and send join message
     if (!state.partner && state.userToCall && !myPeer.open) {
       myPeer.on('open', peer_id => {
-        console.log({ myPeer });
-        // console.log('emit join-video-chat-room');
         socket.emit('join-video-chat-room', {
           room_id: state.room_id,
           user: {
@@ -94,7 +82,6 @@ const VideoChatPage = props => {
 
   return (
     <div className='container'>
-      <h1>Video Chat Page</h1>
       <div id='video-grid'></div>
     </div>
   );

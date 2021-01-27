@@ -17,6 +17,8 @@ export class AuthController {
       ...token,
     };
 
+    console.log({ user });
+
     return user;
   }
 
