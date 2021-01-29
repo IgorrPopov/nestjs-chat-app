@@ -28,6 +28,7 @@ const ChatPage = props => {
   useEffect(() => {
     if (socket && socket._callbacks['$events'] === undefined) {
       socket.on('events', data => {
+        console.log({ data });
         setMessages(prevMsg => {
           return [...prevMsg, { ...data.message }];
         });

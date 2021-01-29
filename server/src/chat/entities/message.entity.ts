@@ -22,8 +22,23 @@ export class Message extends Document {
 const MessageSchema = SchemaFactory.createForClass(Message);
 
 MessageSchema.set('timestamps', true);
+
 MessageSchema.add({
   owner: { type: MongooseSchema.Types.ObjectId, required: true, ref: 'User' },
 });
+
+MessageSchema.methods.toJSON = function () {
+  const message = this;
+
+  const messageObject = Object.assign(
+    { createdAt: undefined, updatedAt: undefined },
+    message.toObject(),
+  );
+
+  delete messageObject.updatedAt;
+  delete messageObject.__v;
+
+  return messageObject;
+};
 
 export { MessageSchema };

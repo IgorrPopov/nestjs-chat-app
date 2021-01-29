@@ -5,6 +5,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
+  WsException,
   WsResponse,
 } from '@nestjs/websockets';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
@@ -67,16 +68,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { messages };
   }
 
-  @UsePipes(new ValidationPipe())
+  @UsePipes(
+    new ValidationPipe({
+      exceptionFactory: (errors) => new WsException('Error'),
+    }),
+  )
   @SubscribeMessage('events')
   async handleEvent(
     @MessageBody() createMessageDto: CreateMessageDto,
     @ConnectedSocket() client: Socket,
-  ): Promise<WsResponse<unknown>> {
+    // ): Promise<WsResponse<unknown>> {
+    //   const message = await this.chatService.createMessage(createMessageDto);
+
+    //   client.broadcast.emit('events', { message });
+    //   return { event: 'events', data: { message } };
+    // }
+  ): Promise<void> {
     const message = await this.chatService.createMessage(createMessageDto);
 
-    client.broadcast.emit('events', { message });
-    return { event: 'events', data: { message } };
+    this.server.emit('events', { message });
   }
 
   @SubscribeMessage('join-video-chat-room')
