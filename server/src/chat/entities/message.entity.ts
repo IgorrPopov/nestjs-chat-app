@@ -1,13 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 
+import { MIN_MESSAGE_LENGTN, MAX_MESSAGE_LENGTH } from '../config/chat.config';
+
 @Schema()
 export class Message extends Document {
   @Prop({
     required: true,
     trim: true,
-    minlength: 1,
-    maxlength: 10000,
+    minlength: MIN_MESSAGE_LENGTN,
+    maxlength: MAX_MESSAGE_LENGTH,
   })
   text: string;
 

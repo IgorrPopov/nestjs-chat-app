@@ -1,5 +1,5 @@
 server {
-  listen 3002;
+  listen 3001;
   server_name localhost; 
 
 
@@ -12,7 +12,7 @@ server {
   }
 
   location /users {
-    proxy_pass http://server:3001;
+    proxy_pass http://server:3002;
     # Needed for sockets
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -20,7 +20,7 @@ server {
   }
 
     location /auth {
-    proxy_pass http://server:3001;
+    proxy_pass http://server:3002;
     # Needed for sockets
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -28,7 +28,7 @@ server {
   }
 
   location /socket.io/ {
-    proxy_pass http://server:3001;
+    proxy_pass http://server:3002;
     # Needed for sockets
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;

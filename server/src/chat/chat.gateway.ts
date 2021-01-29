@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -12,6 +12,8 @@ import { Socket, Server } from 'socket.io';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { ChatService } from './chat.service';
+
+import { CreateMessageDto } from './dto/create-message.dto';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -65,14 +67,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { messages };
   }
 
+  @UsePipes(new ValidationPipe())
   @SubscribeMessage('events')
   async handleEvent(
-    @MessageBody() data: any,
+    @MessageBody() createMessageDto: CreateMessageDto,
     @ConnectedSocket() client: Socket,
   ): Promise<WsResponse<unknown>> {
-    const { text, owner } = data;
-
-    const message = await this.chatService.createMessage(text, owner);
+    const message = await this.chatService.createMessage(createMessageDto);
 
     client.broadcast.emit('events', { message });
     return { event: 'events', data: { message } };

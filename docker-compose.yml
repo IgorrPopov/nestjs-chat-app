@@ -1,6 +1,18 @@
 version: '3'
 
 services:
+  nginx:
+    image: nginx:1.15-alpine
+    container_name: chat-app-nginx
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf
+    depends_on:
+      - client
+    networks:
+      - chat-app-network
+
   client:
     build:
       dockerfile: Dockerfile.prod
@@ -12,9 +24,6 @@ services:
       - server
     ports:
       - 3000:3000
-    # environment:
-    # API_HOST: http://localhost:3001
-    # SOCKET_URL: http://localhost:3001
     networks:
       - chat-app-network
     volumes:
@@ -30,9 +39,9 @@ services:
     depends_on:
       - chat_db
     environment:
-      - PORT=3001
+      - PORT=3002
     ports:
-      - 3001:3001
+      - 3002:3002
     networks:
       - chat-app-network
     volumes:
@@ -48,18 +57,6 @@ services:
       MONGODB_DATABASE: chat-app
     volumes:
       - mongo_db:/data/db
-    networks:
-      - chat-app-network
-
-  nginx:
-    image: nginx:1.15-alpine
-    container_name: chat-app-nginx
-    ports:
-      - '3002:3002'
-    volumes:
-      - ./nginx/nginx.conf.prod:/etc/nginx/conf.d/nginx.conf
-    depends_on:
-      - client
     networks:
       - chat-app-network
 
