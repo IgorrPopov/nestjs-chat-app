@@ -64,26 +64,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('loadMessages')
   async loadMessages() {
-    throw new WsException('Error message');
     const messages = await this.chatService.getAllMessages();
     return { messages };
   }
 
-  // @UsePipes(
-  //   new ValidationPipe({
-  //     exceptionFactory: (errors) => new WsException('Error'),
-  //   }),
-  // )
+  @UsePipes(
+    new ValidationPipe({
+      exceptionFactory: (errors) => new WsException('asdfasdfsd'),
+    }),
+  )
   @SubscribeMessage('events')
   async handleEvent(
     @MessageBody() createMessageDto: CreateMessageDto,
-    @ConnectedSocket() client: Socket,
-    // ): Promise<WsResponse<unknown>> {
-    //   const message = await this.chatService.createMessage(createMessageDto);
-
-    //   client.broadcast.emit('events', { message });
-    //   return { event: 'events', data: { message } };
-    // }
   ): Promise<void> {
     const message = await this.chatService.createMessage(createMessageDto);
 

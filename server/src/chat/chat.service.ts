@@ -14,8 +14,6 @@ export class ChatService {
   ) {}
 
   async createMessage(createMessageDto: CreateMessageDto): Promise<Message> {
-    console.log({ createMessageDto });
-
     const message = new this.messageModel(createMessageDto);
 
     await message.save();
