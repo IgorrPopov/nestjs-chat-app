@@ -34,11 +34,9 @@ const LoginPage = props => {
         pathname: '/chat',
         state: { user },
       });
-
-      // console.log({ user });
     } else {
       const responseMsg = await response.json();
-      console.log(responseMsg);
+      alert(`${responseMsg.message} ${responseMsg.statusCode}`);
     }
   };
 

@@ -14,10 +14,12 @@ export class ChatService {
   ) {}
 
   async createMessage(createMessageDto: CreateMessageDto): Promise<Message> {
+    console.log({ createMessageDto });
+
     const message = new this.messageModel(createMessageDto);
 
     await message.save();
-    await message.populate('owner').execPopulate();
+    await message.populate({ path: 'owner', select: 'name' }).execPopulate();
 
     return message;
   }
@@ -29,7 +31,7 @@ export class ChatService {
       .find({
         createdAt: { $gt: date },
       })
-      .populate('owner', '_id name email')
+      .populate({ path: 'owner', select: 'name' })
       .sort({ createdAt: 1 })
       .exec();
 

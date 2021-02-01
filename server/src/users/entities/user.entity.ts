@@ -53,23 +53,23 @@ UserSchema.set('toJSON', { virtuals: true });
 
 UserSchema.set('timestamps', true);
 
-UserSchema.methods.toJSON = function () {
-  const user = this;
+// UserSchema.methods.toJSON = function () {
+//   const user = this;
 
-  const userObject = Object.assign(
-    {
-      createdAt: undefined,
-      updatedAt: undefined,
-    },
-    user.toObject(),
-  );
+//   const userObject = Object.assign(
+//     {
+//       createdAt: undefined,
+//       updatedAt: undefined,
+//     },
+//     user.toObject(),
+//   );
 
-  delete userObject.password;
-  delete userObject.__v;
-  delete userObject.updatedAt;
-  delete userObject.createdAt;
+//   delete userObject.password;
+//   delete userObject.__v;
+//   delete userObject.updatedAt;
+//   delete userObject.createdAt;
 
-  return userObject;
-};
+//   return userObject;
+// };
 
 export { UserSchema };

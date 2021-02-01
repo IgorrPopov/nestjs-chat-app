@@ -64,15 +64,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('loadMessages')
   async loadMessages() {
+    throw new WsException('Error message');
     const messages = await this.chatService.getAllMessages();
     return { messages };
   }
 
-  @UsePipes(
-    new ValidationPipe({
-      exceptionFactory: (errors) => new WsException('Error'),
-    }),
-  )
+  // @UsePipes(
+  //   new ValidationPipe({
+  //     exceptionFactory: (errors) => new WsException('Error'),
+  //   }),
+  // )
   @SubscribeMessage('events')
   async handleEvent(
     @MessageBody() createMessageDto: CreateMessageDto,

@@ -44,8 +44,15 @@ const ChatPage = props => {
       });
 
       // load old messages
-      socket.emit('loadMessages', data => {
+      socket.emit('loadMessages', (data, a) => {
+        console.log('loadMessages');
+        console.log({ data });
+        console.log({ a });
         setMessages([...messages, ...data.messages]);
+      });
+
+      socket.on('exception', data => {
+        alert(data?.message);
       });
 
       // load connected users
@@ -122,9 +129,6 @@ const ChatPage = props => {
 
   return (
     <div className='container'>
-      <div>{user.name}</div>
-      <div>{user.email}</div>
-      <div>Socker: {socket && socket.id}</div>
       <div>
         <div className='chat-box'>
           <div className='chat-box__messages'>

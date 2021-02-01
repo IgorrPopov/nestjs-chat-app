@@ -13,10 +13,10 @@ export class Message extends Document {
   })
   text: string;
 
-  @Prop({
-    required: true,
-  })
-  owner: string;
+  // @Prop({
+  //   required: true,
+  // })
+  // owner: string;
 }
 
 const MessageSchema = SchemaFactory.createForClass(Message);
@@ -27,18 +27,18 @@ MessageSchema.add({
   owner: { type: MongooseSchema.Types.ObjectId, required: true, ref: 'User' },
 });
 
-MessageSchema.methods.toJSON = function () {
-  const message = this;
+// MessageSchema.methods.toJSON = function () {
+//   const message = this;
 
-  const messageObject = Object.assign(
-    { createdAt: undefined, updatedAt: undefined },
-    message.toObject(),
-  );
+//   const messageObject = Object.assign(
+//     { createdAt: undefined, updatedAt: undefined },
+//     message.toObject(),
+//   );
 
-  delete messageObject.updatedAt;
-  delete messageObject.__v;
+//   delete messageObject.updatedAt;
+//   delete messageObject.__v;
 
-  return messageObject;
-};
+//   return messageObject;
+// };
 
 export { MessageSchema };

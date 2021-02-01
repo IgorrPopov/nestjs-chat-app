@@ -33,7 +33,7 @@ const SignupPage = props => {
       });
     } else {
       const responseMsg = await response.json();
-      console.log(responseMsg);
+      alert(`${responseMsg.message} ${responseMsg.statusCode}`);
     }
   };
 
