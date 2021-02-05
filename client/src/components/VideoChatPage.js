@@ -4,6 +4,7 @@ import { StateContext } from './context/StateContext';
 
 const VideoChatPage = props => {
   const { state } = useContext(StateContext);
+  const [videoCall, setVideoCall] = useState(null);
   const [myPeer] = useState(
     new Peer(undefined, {
       host: '/',
@@ -29,6 +30,8 @@ const VideoChatPage = props => {
         // this user wanna make a video call to the partner
         if (state.userToCall && !state.partner) {
           myPeer.on('call', otherUserCall => {
+            setVideoCall(otherUserCall);
+
             otherUserCall.answer(myStream);
             const otherUserVideo = document.createElement('video');
             otherUserCall.on('stream', otherUserStream => {
@@ -41,6 +44,9 @@ const VideoChatPage = props => {
         if (state.partner && !state.userToCall) {
           // connecting to the peer server
           const call = myPeer.call(state.partner.peer_id, myStream);
+
+          setVideoCall(call);
+
           const otherUserVideo = document.createElement('video');
           otherUserVideo.classList.add('partner-video');
           call.on('stream', otherUserStream => {
@@ -69,6 +75,20 @@ const VideoChatPage = props => {
       // open connection for the user that is going to call back
       myPeer.on('open', () => {});
     }
+
+    socket.on('end-of-video-call', () => {
+      console.log('end-of-video-call');
+      const $videos = document.querySelectorAll('video');
+      $videos.forEach(video => {
+        video.remove();
+        const stream = video.captureStream();
+        const tracks = stream.getTracks();
+
+        tracks.forEach(track => track.stop());
+
+        props.history.push('/chat');
+      });
+    });
   }, [state, myPeer]);
 
   const addVideoStream = (video, stream) => {
@@ -77,11 +97,25 @@ const VideoChatPage = props => {
     video.addEventListener('loadedmetadata', () => {
       video.play();
     });
+
     $videoGrid.append(video);
+  };
+
+  const handleCloseCall = () => {
+    if (state && state.socket && videoCall) {
+      videoCall.close();
+
+      state.socket.emit('end-of-video-call', {
+        room_id: state.room_id,
+      });
+    }
   };
 
   return (
     <div className='container'>
+      <button className='end-call-button btn red' onClick={handleCloseCall}>
+        End
+      </button>
       <div id='video-grid'></div>
     </div>
   );

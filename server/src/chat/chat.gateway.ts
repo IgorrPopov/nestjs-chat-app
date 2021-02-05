@@ -1,4 +1,10 @@
-import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  HttpException,
+  UseFilters,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,8 +16,10 @@ import {
 } from '@nestjs/websockets';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
+import { ChatAuthGuard } from './chat-auth.guard';
+import { ChatHttpExceptionFilter } from './chat-http-exception.filter';
 import { ChatService } from './chat.service';
 
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -26,15 +34,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly chatService: ChatService,
     private readonly usersService: UsersService,
+    private readonly authService: AuthService,
   ) {}
 
+  @UseGuards(ChatAuthGuard)
   async handleConnection(client: Socket, ...args: any[]) {
     console.log('New connection: ', client.id);
 
-    const client_id = client.handshake.query._id;
+    const token = client.handshake.query?.access_token;
 
-    if (client_id) {
-      const user = await this.usersService.findOne(client_id);
+    if (!token) throw new WsException('Unauthorized');
+
+    const decoded = await this.authService.getUserByJwtToken(token);
+
+    if (!decoded) throw new WsException('Unauthorized');
+
+    if (decoded && decoded.sub) {
+      const user = await this.usersService.findOne(decoded.sub);
+
+      if (!user) throw new WsException('Unauthorized');
 
       this.connectedChatUsers.push({
         ...user.toObject(),
@@ -42,6 +60,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       client.broadcast.emit('loadUsers', { users: this.connectedChatUsers });
+    } else {
+      throw new WsException('Unauthorized');
     }
   }
 
@@ -57,31 +77,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @UseGuards(ChatAuthGuard)
   @SubscribeMessage('loadUsers')
   loadUsers(@ConnectedSocket() client: Socket) {
     return { event: 'loadUsers', data: { users: this.connectedChatUsers } };
   }
 
+  @UseGuards(ChatAuthGuard)
   @SubscribeMessage('loadMessages')
   async loadMessages() {
     const messages = await this.chatService.getAllMessages();
     return { messages };
   }
 
-  @UsePipes(
-    new ValidationPipe({
-      exceptionFactory: (errors) => new WsException('asdfasdfsd'),
-    }),
-  )
+  @UseFilters(ChatHttpExceptionFilter) // to catch exseption from ValidationPipe
+  @UseGuards(ChatAuthGuard)
+  @UsePipes(ValidationPipe)
   @SubscribeMessage('events')
   async handleEvent(
     @MessageBody() createMessageDto: CreateMessageDto,
   ): Promise<void> {
     const message = await this.chatService.createMessage(createMessageDto);
-
     this.server.emit('events', { message });
   }
 
+  @UseGuards(ChatAuthGuard)
   @SubscribeMessage('join-video-chat-room')
   handleUserJoinVideoChat(
     @ConnectedSocket() client: Socket,
@@ -94,5 +114,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .emit('video-chat-invitation', { room_id, user });
 
     client.join(room_id);
+
+    const allSockets = this.server.of('/').sockets;
+    const partnerSocket = allSockets[partner.socket_id];
+
+    partnerSocket.join(room_id);
+  }
+
+  @SubscribeMessage('end-of-video-call')
+  handleUserEndVideoCall(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    const { room_id } = data;
+
+    this.server.to(room_id).emit('end-of-video-call');
   }
 }

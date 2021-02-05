@@ -29,8 +29,6 @@ export class UsersService {
       throw new NotFoundException(`User #${id} not found`);
     }
 
-    // await user.populate('messages').execPopulate();
-
     return user;
   }
 

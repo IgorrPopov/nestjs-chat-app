@@ -21,33 +21,23 @@ const ChatPage = props => {
     if (!user) {
       props.history.push('/login');
     } else {
-      setSocket(socketConnection.getConnection(user._id));
+      setSocket(socketConnection.getConnection(user.access_token));
     }
   }, []);
 
   useEffect(() => {
     if (socket && socket._callbacks['$events'] === undefined) {
       socket.on('events', data => {
-        console.log({ data });
         setMessages(prevMsg => {
           return [...prevMsg, { ...data.message }];
         });
 
-        // scroll to the bottom of the chat box
-        const $chatBoxMsg = document.getElementsByClassName(
-          'chat-box__messages'
-        );
-
-        if ($chatBoxMsg !== undefined && $chatBoxMsg.length > 0) {
-          $chatBoxMsg[0].scrollTop = $chatBoxMsg[0].scrollHeight;
-        }
+        scrollToBottom();
       });
 
       // load old messages
-      socket.emit('loadMessages', (data, a) => {
+      socket.emit('loadMessages', { access_token: user.access_token }, data => {
         console.log('loadMessages');
-        console.log({ data });
-        console.log({ a });
         setMessages([...messages, ...data.messages]);
       });
 
@@ -56,7 +46,7 @@ const ChatPage = props => {
       });
 
       // load connected users
-      socket.emit('loadUsers');
+      socket.emit('loadUsers', { access_token: user.access_token });
 
       socket.on('loadUsers', data => {
         const uniqueOtherUsers = data.users.reduce((accum, curr) => {
@@ -74,7 +64,6 @@ const ChatPage = props => {
       });
 
       socket.on('video-chat-invitation', ({ room_id, user: partner }) => {
-        console.log('video-chat-invitation');
         partner.room_id = room_id;
         setUserWhoIsCalling(partner);
       });
@@ -98,7 +87,11 @@ const ChatPage = props => {
     e.preventDefault();
 
     if (socket) {
-      socket.emit('events', { text, owner: user._id });
+      socket.emit('events', {
+        text,
+        owner: user._id,
+        access_token: user.access_token,
+      });
     }
 
     setText('');
@@ -124,6 +117,13 @@ const ChatPage = props => {
       const { room_id, peer_id, _id } = userWhoIsCalling;
       setState({ user, partner: { _id, peer_id }, room_id, socket });
       props.history.push(`/video-chat/${room_id}`);
+    }
+  };
+
+  const scrollToBottom = () => {
+    const $chatBoxMsg = document.getElementsByClassName('chat-box__messages');
+    if ($chatBoxMsg !== undefined && $chatBoxMsg.length > 0) {
+      $chatBoxMsg[0].scrollTop = $chatBoxMsg[0].scrollHeight;
     }
   };
 
