@@ -4,10 +4,14 @@ const Message = ({ user_id, message }) => {
   const classNameForMessage =
     user_id !== message.owner._id ? 'message' : 'message message--right';
 
-  const time = message.createdAt
+  const milliseconds = Date.parse(message.createdAt);
+  const data = new Date(milliseconds - new Date().getTimezoneOffset() * 60000);
+
+  const time = data
+    .toISOString()
     .split(/[T|.]/g)
     .map((elm, index) => {
-      if (index === 0) return elm.replaceAll('-', '.');
+      // if (index === 0) return elm.replaceAll('-', '.');
       if (index === 1) return elm;
       return '';
     })

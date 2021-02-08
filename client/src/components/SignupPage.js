@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SOCKET_URL, API_HOST } from '../config/config';
+import M from 'materialize-css/dist/js/materialize.min.js';
 
 const SignupPage = props => {
   const [name, setName] = useState('');
@@ -33,7 +33,12 @@ const SignupPage = props => {
       });
     } else {
       const responseMsg = await response.json();
-      alert(`${responseMsg.message} ${responseMsg.statusCode}`);
+
+      M.toast({
+        html: `${responseMsg.message} ${responseMsg.statusCode}`,
+        displayLength: 3000,
+        classes: 'toast',
+      });
     }
   };
 

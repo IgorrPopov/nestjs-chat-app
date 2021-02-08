@@ -26,8 +26,8 @@ const ChatPage = props => {
   }, []);
 
   useEffect(() => {
-    if (socket && socket._callbacks['$events'] === undefined) {
-      socket.on('events', data => {
+    if (socket && socket._callbacks['$newMessage'] === undefined) {
+      socket.on('newMessage', data => {
         setMessages(prevMsg => {
           return [...prevMsg, { ...data.message }];
         });
@@ -42,13 +42,19 @@ const ChatPage = props => {
       });
 
       socket.on('exception', data => {
-        alert(data?.message);
+        M.toast({
+          html: `${data?.message}`,
+          displayLength: 2000,
+          classes: 'toast',
+        });
       });
 
       // load connected users
       socket.emit('loadUsers', { access_token: user.access_token });
 
       socket.on('loadUsers', data => {
+        console.log('loadUsers');
+        console.log({ data });
         const uniqueOtherUsers = data.users.reduce((accum, curr) => {
           if (
             curr._id !== user._id &&
@@ -63,7 +69,7 @@ const ChatPage = props => {
         setUsers([...uniqueOtherUsers]);
       });
 
-      socket.on('video-chat-invitation', ({ room_id, user: partner }) => {
+      socket.on('videoChatInvitation', ({ room_id, user: partner }) => {
         partner.room_id = room_id;
         setUserWhoIsCalling(partner);
       });
@@ -87,7 +93,7 @@ const ChatPage = props => {
     e.preventDefault();
 
     if (socket) {
-      socket.emit('events', {
+      socket.emit('newMessage', {
         text,
         owner: user._id,
         access_token: user.access_token,

@@ -12,7 +12,6 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
   WsException,
-  WsResponse,
 } from '@nestjs/websockets';
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
@@ -37,7 +36,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly authService: AuthService,
   ) {}
 
-  @UseGuards(ChatAuthGuard)
   async handleConnection(client: Socket, ...args: any[]) {
     console.log('New connection: ', client.id);
 
@@ -80,6 +78,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseGuards(ChatAuthGuard)
   @SubscribeMessage('loadUsers')
   loadUsers(@ConnectedSocket() client: Socket) {
+    console.log('loadUsers');
     return { event: 'loadUsers', data: { users: this.connectedChatUsers } };
   }
 
@@ -93,16 +92,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseFilters(ChatHttpExceptionFilter) // to catch exseption from ValidationPipe
   @UseGuards(ChatAuthGuard)
   @UsePipes(ValidationPipe)
-  @SubscribeMessage('events')
+  @SubscribeMessage('newMessage')
   async handleEvent(
     @MessageBody() createMessageDto: CreateMessageDto,
   ): Promise<void> {
+    console.log('newMessage');
+
     const message = await this.chatService.createMessage(createMessageDto);
-    this.server.emit('events', { message });
+    this.server.emit('newMessage', { message });
   }
 
   @UseGuards(ChatAuthGuard)
-  @SubscribeMessage('join-video-chat-room')
+  @SubscribeMessage('joinVideoChatRoom')
   handleUserJoinVideoChat(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
@@ -111,7 +112,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.server
       .to(partner.socket_id)
-      .emit('video-chat-invitation', { room_id, user });
+      .emit('videoChatInvitation', { room_id, user });
 
     client.join(room_id);
 
@@ -121,13 +122,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     partnerSocket.join(room_id);
   }
 
-  @SubscribeMessage('end-of-video-call')
+  @SubscribeMessage('endOfVideoCall')
   handleUserEndVideoCall(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ) {
     const { room_id } = data;
 
-    this.server.to(room_id).emit('end-of-video-call');
+    this.server.to(room_id).emit('endOfVideoCall');
   }
 }

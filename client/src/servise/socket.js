@@ -6,7 +6,8 @@ const socketConnection = {
 
   getConnection(access_token) {
     if (!this.socket) {
-      this.socket = io(SOCKET_URL, {
+      // this.socket = io(SOCKET_URL, {
+      this.socket = io('/', {
         query: { access_token },
       });
     }

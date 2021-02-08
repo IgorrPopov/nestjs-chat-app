@@ -8,7 +8,7 @@ export class ChatAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const data = context.switchToWs().getData();
-
+    // console.log({ data });
     if (data.access_token) {
       const decoded = await this.authService.getUserByJwtToken(
         data.access_token,

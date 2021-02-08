@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { SOCKET_URL, API_HOST } from '../config/config';
+import React, { useEffect, useState } from 'react';
+import M from 'materialize-css/dist/js/materialize.min.js';
 
 const LoginPage = props => {
   const [email, setEmail] = useState(
@@ -36,7 +36,12 @@ const LoginPage = props => {
       });
     } else {
       const responseMsg = await response.json();
-      alert(`${responseMsg.message} ${responseMsg.statusCode}`);
+
+      M.toast({
+        html: `${`${responseMsg.message} ${responseMsg.statusCode}`}`,
+        displayLength: 2000,
+        classes: 'toast',
+      });
     }
   };
 

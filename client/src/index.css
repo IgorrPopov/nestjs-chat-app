@@ -150,3 +150,8 @@ video {
   max-height: 88vh;
   object-fit: cover;
 }
+
+.toast {
+  background-color: red !important;
+  font-weight: bold !important;
+}

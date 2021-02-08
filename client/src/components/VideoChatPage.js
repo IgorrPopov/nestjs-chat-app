@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import M from 'materialize-css/dist/js/materialize.min.js';
 import Peer from 'peerjs';
 import { StateContext } from './context/StateContext';
 
@@ -58,7 +59,7 @@ const VideoChatPage = props => {
     // open connection and send join message
     if (!state.partner && state.userToCall && !myPeer.open) {
       myPeer.on('open', peer_id => {
-        socket.emit('join-video-chat-room', {
+        socket.emit('joinVideoChatRoom', {
           room_id: state.room_id,
           user: {
             _id: state.user._id,
@@ -76,8 +77,8 @@ const VideoChatPage = props => {
       myPeer.on('open', () => {});
     }
 
-    socket.on('end-of-video-call', () => {
-      console.log('end-of-video-call');
+    socket.on('endOfVideoCall', () => {
+      console.log('endOfVideoCall');
       const $videos = document.querySelectorAll('video');
       $videos.forEach(video => {
         video.remove();
@@ -87,6 +88,14 @@ const VideoChatPage = props => {
         tracks.forEach(track => track.stop());
 
         props.history.push('/chat');
+      });
+    });
+
+    socket.on('exception', data => {
+      M.toast({
+        html: `${data?.message}`,
+        displayLength: 2000,
+        classes: 'toast',
       });
     });
   }, [state, myPeer]);
